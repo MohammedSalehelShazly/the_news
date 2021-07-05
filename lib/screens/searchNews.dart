@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../models/SavedArticles.dart';
+import '../widgets/searchInitScreen.dart';
 import '../staticVariables.dart';
 import '../widgets/likeSnackBar.dart';
 import '../models/article_models.dart';
@@ -11,15 +14,26 @@ import '../languages.dart';
 import '../services/newsServices.dart';
 
 
-class SearchNews extends StatelessWidget {
+class SearchNews extends StatefulWidget {
 
-  Future<List<Article>> all(bool isEng)=> NewsApi().fetchArticles('all' ,isEng);
-  Future<List<Article>> sports(bool isEng)=> NewsApi().fetchArticles('Sports' ,isEng);
-  Future<List<Article>> technology(bool isEng)=> NewsApi().fetchArticles('Technology' ,isEng);
-  Future<List<Article>> scince_space(bool isEng)=> NewsApi().fetchArticles('Scince & space' ,isEng);
-  Future<List<Article>> art(bool isEng)=> NewsApi().fetchArticles('Art' ,isEng);
-  Future<List<Article>> health(bool isEng)=> NewsApi().fetchArticles('Health' ,isEng);
-  Future<List<Article>> business(bool isEng)=> NewsApi().fetchArticles('Business' ,isEng);
+  @override
+  _SearchNewsState createState() => _SearchNewsState();
+}
+
+class _SearchNewsState extends State<SearchNews> {
+  static Future<List<Article>> all(bool isEng)=> NewsApi().fetchArticles('all' ,isEng);
+
+  static Future<List<Article>> sports(bool isEng)=> NewsApi().fetchArticles('Sports' ,isEng);
+
+  static Future<List<Article>> technology(bool isEng)=> NewsApi().fetchArticles('Technology' ,isEng);
+
+  static Future<List<Article>> scince_space(bool isEng)=> NewsApi().fetchArticles('Scince & space' ,isEng);
+
+  static Future<List<Article>> art(bool isEng)=> NewsApi().fetchArticles('Art' ,isEng);
+
+  static Future<List<Article>> health(bool isEng)=> NewsApi().fetchArticles('Health' ,isEng);
+
+  static Future<List<Article>> business(bool isEng)=> NewsApi().fetchArticles('Business' ,isEng);
 
   Future<List<Article>> addAllNews(bool isEng){
     return all(isEng).then((allVal){
@@ -48,49 +62,35 @@ class SearchNews extends StatelessWidget {
   TextEditingController inputController = TextEditingController();
 
   sWidth(BuildContext context ,[ratio=1])=>MediaQuery.of(context).size.width*ratio;
+
   sHeight(BuildContext context ,[ratio=1])=>MediaQuery.of(context).size.height*ratio;
 
-  List hasSearch = [];
-  findSearch(bool isEng){
-    return addAllNews(isEng).then((listAllNews){
+  List<Article> hasSearch = [];
 
-      for(int i=0 ;i<listAllNews.length ;i++){
-        if(listAllNews[i].title.toString().toLowerCase().contains(inputController.text.toLowerCase())){
-          hasSearch.add(listAllNews[i]);
-          hasSearch = hasSearch.toSet().toList();
+   Future<List<Article> > findSearch(bool isEng ,ctrl) async{
+    return await addAllNews(isEng).then((listAllNews){
+      hasSearch.clear();
+      
+      if(ctrl.toString().trim() != ''){
+        for(int i=0 ;i<listAllNews.length ;i++){
+          if(listAllNews[i].title.toString().toLowerCase().contains(ctrl.toLowerCase())){
+            hasSearch.add(listAllNews[i]);
+          }
+          else {
+            hasSearch.remove(listAllNews[i]);
+          }
         }
-        else {
-          hasSearch.remove(listAllNews[i]);
-          hasSearch = hasSearch.toSet().toList();
-        }
+        if(hasSearch.length<2) return hasSearch ; 
+        else return listOfMapToSet(hasSearch);
       }
-
-      return hasSearch.toSet().toList() ;
-
+      else return hasSearch;
     });
   }
 
-  test(){
-    List<Map> x  = [
-      {
-        'name':'Mohammed',
-        'year':'2021',
-        'class':'C1',
-      },
-      {
-        'name':'Mohammed',
-        'year':'2021',
-        'class':'C1',
-      },
-      {
-        'name':'Mohammed',
-        'year':'2021',
-        'class':'C1',
-      },
-    ];
-
-    return x.toSet().toList().length;   // 2  ??
-  }
+  double searchFiledHeight()=> sHeight(context ,0.09);
+    
+  static var savedDataSQlite;
+  bool firstTime=true;
 
   @override
   Widget build(BuildContext context) {
@@ -115,31 +115,43 @@ class SearchNews extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: FutureBuilder(
-                        future: findSearch(provListen.isEnglish),
-                        builder: (context, AsyncSnapshot<dynamic> snapshot){
-
-                          return snapshot.hasData ? Padding(
-                            padding: EdgeInsets.only(top: sHeight(context ,0.09)),
-                            child: snapshot.data.length == 0 ?  NoSearchItems(context ,sWidth: sWidth(context),)
-                                :
-                            ListView.builder(
+                        future: findSearch(provListen.isEnglish ,inputController.text),
+                        builder: (context, AsyncSnapshot<List<Article> > snapshot){
+                          if(snapshot.hasData){
+                            if(firstTime==true){
+                              SavedDB().getAll().then((value) => setState(()=> savedDataSQlite=value) );
+                              print('savedDataSQlite $savedDataSQlite');
+                              firstTime=false;
+                            }
+                          }
+                          
+                          
+                          return snapshot.hasData && snapshot.data.length!=0 ? Padding(
+                            padding: EdgeInsets.only(top: searchFiledHeight()),
+                            child: ListView.builder(
                                 physics: BouncingScrollPhysics(),
                                 itemCount: snapshot.data.length,
                                 itemBuilder: (context ,index){
                                   return ContainerOneNews(
+                                    all: savedDataSQlite,
                                     sWidth: sWidth(context),
                                     sHeight: sWidth(context, 0.55),
                                     title: snapshot.data[index].title,
                                     url: snapshot.data[index].url,
                                     author: snapshot.data[index].author.name,
-                                    description: snapshot.data[index].description,
                                     publishedAt: snapshot.data[index].publishedAt,
                                     urlToImage: snapshot.data[index].urlToImage,
                                   );
                                 }
                             ),
                           )
-                              :  Center(child: CupertinoActivityIndicator());
+                              :
+                          snapshot.hasData && snapshot.data.length==0 && inputController.text=='' || snapshot.data==null && inputController.text=='' ?  SearchInitScreen(context ,topPadding: searchFiledHeight() ,sWidth: sWidth(context),)
+                              :
+                          snapshot.hasData && snapshot.data.length==0 && inputController.text!='' || snapshot.data==null && inputController.text!='' ? NoSearchItems(context ,sWidth: sWidth(context),)
+                              :
+
+                          Center(child: CupertinoActivityIndicator());
 
                         }
                     ),
@@ -150,7 +162,7 @@ class SearchNews extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(3),
                   alignment: Alignment.bottomCenter,
-                  height: sHeight(context ,0.09),
+                  height: searchFiledHeight(),
                   child: Row(
                     children: [
                       IconButton(
@@ -162,6 +174,7 @@ class SearchNews extends StatelessWidget {
 
                       Expanded(
                         child: TextFormField(
+                          textInputAction: TextInputAction.search,
                           autofocus: true,
                           controller: inputController,
                           cursorColor: appColorPrimary,

@@ -1,4 +1,6 @@
 
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 
 class MyProviderReT with ChangeNotifier{
@@ -19,6 +21,19 @@ class MyProviderReT with ChangeNotifier{
   bool isEnglish = true;
   setIsEnglish(bool newIsEnglish){
     isEnglish = newIsEnglish;
+    notifyListeners();
+  }
+
+  
+  String user ='No';
+  setUser(String newUser){
+    user = newUser;
+    notifyListeners();
+  }
+  
+  bool visiblePass = true;
+  setVisiblePass(bool newVisiblePass){
+    visiblePass = newVisiblePass;
     notifyListeners();
   }
 

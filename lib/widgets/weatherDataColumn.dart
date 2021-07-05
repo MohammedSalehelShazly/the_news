@@ -33,7 +33,7 @@ class WeatherDataColumn extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 5 ,horizontal: 8),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.3),
+          color: Colors.black.withOpacity(0.35),
           borderRadius: BorderRadius.circular(15)
         ),
         child: Column(

@@ -1,6 +1,6 @@
 # the_news
 
-news app and weather app
+A new Flutter project.
 
 ## Getting Started
 

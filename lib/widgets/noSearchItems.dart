@@ -14,6 +14,7 @@ class NoSearchItems extends StatelessWidget {
   Widget build(BuildContext context) {
     final provListen = Provider.of<MyProviderReT>(context);
     return Container(
+      width: sWidth,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -30,18 +31,22 @@ class NoSearchItems extends StatelessWidget {
             child: InkWell(
               onTap:()=> NewsApi().launchURL('http://google.com'),
               child:
-              RichText(
-                text: TextSpan(
-                  style: TextStyle(letterSpacing: 1 ,shadows: [BoxShadow(blurRadius: 1 , spreadRadius: 10)]),
-                  children: [
-                    TextSpan(text: 'G' ,style: myTextStyle(ctx ,clr: Colors.blue ,ratioSize: 22 ,family: 'Raleway')),
-                    TextSpan(text: 'o' ,style: myTextStyle(ctx ,clr: Colors.red ,ratioSize: 22 ,family: 'Raleway')),
-                    TextSpan(text: 'o' ,style: myTextStyle(ctx ,clr: Colors.yellow ,ratioSize: 22 ,family: 'Raleway')),
-                    TextSpan(text: 'g' ,style: myTextStyle(ctx ,clr: Colors.blue ,ratioSize: 22 ,family: 'Raleway')),
-                    TextSpan(text: 'l' ,style: myTextStyle(ctx ,clr: Colors.green ,ratioSize: 22 ,family: 'Raleway')),
-                    TextSpan(text: 'e' ,style: myTextStyle(ctx ,clr: Colors.red ,ratioSize: 22 ,family: 'Raleway')),
-                    TextSpan(text: '  ?' ,style: myTextStyle(ctx ,clr: Colors.black87 ,ratioSize: 22 ,family: 'Raleway')),
-                  ]
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: RichText(
+                  textDirection: TextDirection.ltr,
+                  text: TextSpan(
+                    style: TextStyle(letterSpacing: 1 ,shadows: [BoxShadow(blurRadius: 1 , spreadRadius: 10)]),
+                    children: [
+                      TextSpan(text: 'G' ,style: myTextStyle(ctx ,clr: Colors.blue ,ratioSize: 22 ,family: 'Raleway')),
+                      TextSpan(text: 'o' ,style: myTextStyle(ctx ,clr: Colors.red ,ratioSize: 22 ,family: 'Raleway')),
+                      TextSpan(text: 'o' ,style: myTextStyle(ctx ,clr: Colors.yellow ,ratioSize: 22 ,family: 'Raleway')),
+                      TextSpan(text: 'g' ,style: myTextStyle(ctx ,clr: Colors.blue ,ratioSize: 22 ,family: 'Raleway')),
+                      TextSpan(text: 'l' ,style: myTextStyle(ctx ,clr: Colors.green ,ratioSize: 22 ,family: 'Raleway')),
+                      TextSpan(text: 'e' ,style: myTextStyle(ctx ,clr: Colors.red ,ratioSize: 22 ,family: 'Raleway')),
+                      TextSpan(text: '  ?' ,style: myTextStyle(ctx ,clr: Colors.black87 ,ratioSize: 22 ,family: 'Raleway')),
+                    ]
+                  ),
                 ),
               ),
             ),

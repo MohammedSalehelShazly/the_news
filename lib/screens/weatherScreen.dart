@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
-import 'package:the_news/languages.dart';
-import 'package:the_news/models/weather_models.dart';
-import 'package:the_news/providerReT.dart';
-import 'package:the_news/services/newsServices.dart';
-import 'package:the_news/staticVariables.dart';
-import 'package:the_news/widgets/weatherDataColumn.dart';
+import 'package:http/http.dart' as http;
+
+import '../languages.dart';
+import '../models/weather_models.dart';
+import '../providerReT.dart';
+import '../services/newsServices.dart';
+import '../services/weatherServices.dart';
+import '../staticVariables.dart';
+import '../widgets/weatherDataColumn.dart';
 
 class WeatherScreen extends StatelessWidget {
 
@@ -39,21 +44,25 @@ class WeatherScreen extends StatelessWidget {
               ),
 
 
-              FutureBuilder(
+              FutureBuilder( 
                 future: WeatherApi().fetchDataWeather(country),
                 builder: (context ,AsyncSnapshot<WeatherModel> snapshot){
                   if(snapshot.hasData){
                     localTime24H = snapshot.data.location.localtime;
                     localTime = convertTo12Hour( localTime24H );
+                    // Timer.periodic(Duration(milliseconds: 200), (timer) {http.get('http://api.weatherstack.com/current?access_key=74c370f0886841c7ac7b8b4f16864bcd&query=cairo');});
                   }
                   return snapshot.hasData ?
                       Column(
                         children: [
 
-                          Text(
-                            ///snapshot.data.location.name,
-                            provListen.isEnglish ? country : country_ar ,
-                            style: myTextStyle(context ,ratioSize: provListen.isEnglish ?country.length>18?30:40  :country_ar.length>18?30:40 ,),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Text(
+                              ///snapshot.data.location.name,
+                              provListen.isEnglish ? country : country_ar ,
+                              style: myTextStyle(context ,ratioSize: provListen.isEnglish ?country.length>18?30:40  :country_ar.length>18?30:40 ,),
+                            ),
                           ),
 
                           Row(
@@ -179,6 +188,8 @@ class WeatherScreen extends StatelessWidget {
                         ],
                       )
                       : Center(child: CupertinoActivityIndicator(),);
+                       // : Center(child: RaisedButton(onPressed: ()=>NewsApi().launchURL('http://api.weatherstack.com/current?access_key=8ae4ec976e670b66078b4b421acd8a67&query=cairo'),),);
+
                 },
               ),
             ],

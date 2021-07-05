@@ -23,7 +23,7 @@ class LikeSnackBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black26,
+      color: appear==true? Colors.black26 :null,
       child: Stack(
         children: [
           child,

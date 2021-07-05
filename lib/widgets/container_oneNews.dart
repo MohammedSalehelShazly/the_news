@@ -1,18 +1,25 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:the_news/providerReT.dart';
+import 'package:toast/toast.dart';
+
+import '../services/savedServices.dart';
+import '../models/article_models.dart';
+import '../providerReT.dart';
 import '../languages.dart';
 import '../models/SavedArticles.dart';
 import '../services/newsServices.dart';
-
 import '../staticVariables.dart';
 import 'dialog.dart';
 
 class ContainerOneNews extends StatefulWidget {
+  final List<SavedArticle> all;
   final String author;
+  final String id;
   final String title;
-  final String description;
   final String url;
   final String urlToImage;
   final String publishedAt;
@@ -23,9 +30,10 @@ class ContainerOneNews extends StatefulWidget {
   final bool isSaved;
 
   ContainerOneNews({
+    @required this.all,
+    @required this.id,
     @required this.author,
     @required this.title,
-    @required this.description,
     @required this.url,
     @required this.urlToImage,
     @required this.publishedAt,
@@ -62,13 +70,17 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
     }
   }
 
-  String urlToImg()=>
-      widget.urlToImage==null && widget.author.contains('Google News')==false ? errorImg
+  String urlToImg(){
+    String _urlToImage =
+          widget.urlToImage==null && widget.author.contains('Google News')==false ? errorImg
+          :widget.urlToImage!=null && widget.urlToImage.endsWith("*") ? errorImg
           :widget.author.contains('Aljazeera') ? aljazeeraImg
           :widget.author.contains('Google News') ? googleNewsImg
-          :widget.urlToImage ;
+          :widget.urlToImage ; return _urlToImage;
+      }
 
   bool isSaved = false ;
+  String postedID ;
 
   @override
   void initState() {
@@ -82,7 +94,7 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
     final provListen = Provider.of<MyProviderReT>(context);
 
     return widget.isSaved==true&&isSaved==false ? SizedBox():Directionality(
-      textDirection: provListen.isEnglish ? TextDirection.ltr : TextDirection.rtl,
+      textDirection: textIsEnglish(widget.title) ? TextDirection.ltr : TextDirection.rtl,
       child: InkWell(
         onTap: (){
           NewsApi().launchURL(widget.url);
@@ -110,7 +122,7 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                   children: [
                     Container(
                       padding: EdgeInsets.all(8),
-                      alignment: Alignment.bottomRight,
+                      alignment: textIsEnglish(widget.title) ? Alignment.bottomLeft : Alignment.bottomRight,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -121,22 +133,17 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                             softWrap: true,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                              provListen.isEnglish ? timePublishedEng() : timePublished() ,
+                          Text(
+                              textIsEnglish(widget.title) ? timePublishedEng() : timePublished() ,
                                 style: myTextStyle(context ,ratioSize: widget.sHeight == MediaQuery.of(context).size.width *0.65/2 ? 10 : 12),
                               ),
-                            ],
-                          )
                         ],
                       ),
                       decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            colors: [Colors.black12 ,Colors.black12 ,Colors.black26 ,Colors.black38 ],
+                            colors: [Colors.black38 ,Colors.black38 ,Colors.black38 ,Colors.black45 ],
                           )
                       ),
                     ),
@@ -149,19 +156,20 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                 child: Directionality(
                   textDirection: TextDirection.ltr,
                   child: Row(
-                    //mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       CircleAvatar(
                         radius: 15,
                         backgroundColor: Colors.white70,
                         child: Text(
-                          widget.author[0] ,
+                          widget.author==null ? ' ' :widget.author[0] ,
                           style: myTextStyle(context ,clr: Colors.black),
                         ),
                       ),
                       Text(
-                          widget.author,
-                          style: myTextStyle(context).copyWith(shadows: [BoxShadow(blurRadius: 20,)])
+                        widget.author==null ? ' ' :widget.author,
+                        style: myTextStyle(context).copyWith(shadows: [BoxShadow(blurRadius: 20,)]),
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -171,12 +179,13 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
               Align(
                 alignment: Alignment.topRight,
                 child: IconButton(
-                  icon: Icon(
+                  icon: !widget.isSaved && isSaved && postedID==null ? CupertinoActivityIndicator()
+                  
+                  :Icon(
                     isSaved ? Icons.bookmark : Icons.bookmark_border,
-                    color: isSaved ?Colors.blue :Colors.black87 ,
+                    color: isSaved ?appColorPrimary :Colors.black87 ,
                   ),
                   onPressed: (){
-                    setState(() {
                       if(isSaved){
                         if(widget.isSaved==true){
                           showDialog(
@@ -186,47 +195,60 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                                     contentTxt: Language().dialogTit(provListen.isEnglish ,2),
                                     ctx: context,
                                     secondActTxt: Language().dialogTit(provListen.isEnglish ,1),
-                                    isEnglish: true,
+                                    isEnglish: provListen.isEnglish,
                                     func:(){
                                       setState(() {
                                         isSaved = false;
-                                        SavedDB().deleteOne(widget.title);
                                       });
+                                      SavedDB().deleteOne(widget.title);
+                                      SavedServices(provListen.user).deleteOneFromFB(widget.id);
                                     },
                                   )
                           );
                         }
                         else{
-                          isSaved = false;
+                          setState(() {
+                            isSaved = false;
+                          });
                           SavedDB().deleteOne(widget.title);
+                          SavedServices(provListen.user).deleteOneFromFB(postedID) // at (not-Saved-screen) ==> widget.id = null
+                              .then((value) => setState(()=> postedID=null ));
                         }
                       }
                       else{
-                        SavedDB().searchOnSaved(widget.title).then((alreadySaved){
+                        SavedServices(provListen.user+'.json').searchOnSaved(widget.title ,widget.all).then((alreadySaved){
                           if(alreadySaved==false){
-                            isSaved = true;
+                            setState(() {
+                              isSaved = true;
+                            });
+                            http.post(SavedServices(provListen.user+'.json').url() ,body: jsonEncode(
+                                  Article().toJson(
+                                    fbAuthor: widget.author,
+                                    fbTitle: widget.title,
+                                    fbUrl: widget.url,
+                                    fbUrlToImage: widget.urlToImage,
+                                    fbUublishedAt: widget.publishedAt
+                                  )
+                              )).then((_postedID) => setState(()=> postedID = jsonDecode(_postedID.body)['name'] ));
+
                             SavedDB().insertRow({
                               'author' : widget.author,
-                              'title' : widget.title,
-                              'description' : widget.description,
+                              'title' : widget.title.toString(),
                               'url' : widget.url,
                               'urlToImage' : urlToImg(),
                               'publishedAt' : widget.publishedAt,
                             });
                           }
                           else{
-                            Provider.of<MyProviderReT>(context ,listen: false).setAlreadySavedAppear(true);
-                            Future.delayed(Duration(seconds: 2),(){
-                              Provider.of<MyProviderReT>(context ,listen: false).setAlreadySavedAppear(false);
-                            });
-
-                            //AllNews().scaffoldKey.currentState.showSnackBar(SnackBar(content: Text('Already Saved'),));
-
+                            Toast.show(Language().widgetsTit(provListen.isEnglish ,0), context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM ,backgroundColor: appColorPrimary.withOpacity(0.7));
+                            // Provider.of<MyProviderReT>(context ,listen: false).setAlreadySavedAppear(true);
+                            // Future.delayed(Duration(seconds: 2),(){
+                            //   Provider.of<MyProviderReT>(context ,listen: false).setAlreadySavedAppear(false);
+                            // });
                           }
                         });
 
                       }
-                    });
                   },
                 ),
               ),
@@ -237,9 +259,7 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
       ),
     );
   }
-  showSnackBar(BuildContext _context){
-  }
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => !widget.isSaved;
 }

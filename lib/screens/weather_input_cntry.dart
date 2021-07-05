@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
-import 'package:the_news/screens/weatherScreen.dart';
+
+import '../screens/weatherScreen.dart';
+import '../countries.dart';
 import '../languages.dart';
 import '../providerReT.dart';
 import '../staticVariables.dart';
