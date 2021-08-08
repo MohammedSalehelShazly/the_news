@@ -1,11 +1,9 @@
 
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 
-class MyProviderReT with ChangeNotifier{
-  int currentPageIndex = 0;
+class MainProvider with ChangeNotifier{
 
+  int currentPageIndex = 0;
   changeCurrentPage(_currentPageIndex){
     currentPageIndex = _currentPageIndex ;
     notifyListeners();
@@ -19,10 +17,6 @@ class MyProviderReT with ChangeNotifier{
 
 
   bool isEnglish = true;
-  setIsEnglish(bool newIsEnglish){
-    isEnglish = newIsEnglish;
-    notifyListeners();
-  }
 
   
   String user ='No';
@@ -36,5 +30,20 @@ class MyProviderReT with ChangeNotifier{
     visiblePass = newVisiblePass;
     notifyListeners();
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

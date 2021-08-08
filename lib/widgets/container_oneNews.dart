@@ -4,18 +4,21 @@ import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:the_news/global/appClrs.dart';
+import 'package:the_news/global/responsive.dart';
+import '../localization/language_constants.dart';
+import 'file:///C:/Users/user/AndroidStudioProjects/the_news/lib/helper/helper.dart';
 import 'package:toast/toast.dart';
 
 import '../services/savedServices.dart';
 import '../models/article_models.dart';
-import '../providerReT.dart';
-import '../languages.dart';
+import '../services/providers/mainProvider.dart';
 import '../models/SavedArticles.dart';
-import '../services/newsServices.dart';
-import '../staticVariables.dart';
+import '../global/staticVariables.dart';
 import 'dialog.dart';
 
 class ContainerOneNews extends StatefulWidget {
+  final Color mainClr;
   final List<SavedArticle> all;
   final String author;
   final String id;
@@ -29,7 +32,7 @@ class ContainerOneNews extends StatefulWidget {
 
   final bool isSaved;
 
-  ContainerOneNews({
+  ContainerOneNews(this.mainClr ,{
     @required this.all,
     @required this.id,
     @required this.author,
@@ -89,16 +92,23 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
   }
 
   var scaffoldKey = GlobalKey<ScaffoldState>();
+  bool first= true;
+  MainProvider mainProvider;
+  
   @override
   Widget build(BuildContext context) {
-    final provListen = Provider.of<MyProviderReT>(context);
+    if(first){
+      mainProvider = Provider.of<MainProvider>(context);
+      first = false;
+    }
 
     return widget.isSaved==true&&isSaved==false ? SizedBox():Directionality(
       textDirection: textIsEnglish(widget.title) ? TextDirection.ltr : TextDirection.rtl,
       child: InkWell(
         onTap: (){
-          NewsApi().launchURL(widget.url);
+          launchURL(widget.url);
         },
+        borderRadius: BorderRadius.vertical(top: Radius.circular(15) ),
         child: Container(
           key: scaffoldKey,
           margin: EdgeInsets.all(5),
@@ -128,14 +138,16 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                         children: [
                           Text(
                             widget.title ,
-                            style: myTextStyle(context ,ratioSize: 17 ,clr: Colors.orange[600]),
+                            style: TextStyle(color: appClrs.secondColor),
                             maxLines: widget.sHeight == MediaQuery.of(context).size.width *0.65 ? 3 : 2,
                             softWrap: true,
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
                               textIsEnglish(widget.title) ? timePublishedEng() : timePublished() ,
-                                style: myTextStyle(context ,ratioSize: widget.sHeight == MediaQuery.of(context).size.width *0.65/2 ? 10 : 12),
+                                style: TextStyle(fontSize:
+                                responsive.textScale(context) *
+                                    widget.sHeight == responsive.sWidth(context)*0.65/2 ? 10 : 12 ),
                               ),
                         ],
                       ),
@@ -162,12 +174,11 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                         backgroundColor: Colors.white70,
                         child: Text(
                           widget.author==null ? ' ' :widget.author[0] ,
-                          style: myTextStyle(context ,clr: Colors.black),
                         ),
                       ),
                       Text(
                         widget.author==null ? ' ' :widget.author,
-                        style: myTextStyle(context).copyWith(shadows: [BoxShadow(blurRadius: 20,)]),
+                        style: TextStyle(shadows: [BoxShadow(blurRadius: 20,)]),
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -183,7 +194,7 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                   
                   :Icon(
                     isSaved ? Icons.bookmark : Icons.bookmark_border,
-                    color: isSaved ?appColorPrimary :Colors.black87 ,
+                    color: isSaved ?widget.mainClr :Colors.black87 ,
                   ),
                   onPressed: (){
                       if(isSaved){
@@ -192,16 +203,15 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                               context: context ,
                               builder: (context)=>
                                   AppDialog(
-                                    contentTxt: Language().dialogTit(provListen.isEnglish ,2),
+                                    contentTxt: getTranslated(context, 'Are You Sure To UnSaved This News'),
                                     ctx: context,
-                                    secondActTxt: Language().dialogTit(provListen.isEnglish ,1),
-                                    isEnglish: provListen.isEnglish,
+                                    secondActTxt: getTranslated(context, 'Unsaved'),
                                     func:(){
                                       setState(() {
                                         isSaved = false;
                                       });
                                       SavedDB().deleteOne(widget.title);
-                                      SavedServices(provListen.user).deleteOneFromFB(widget.id);
+                                      SavedServices(mainProvider.user).deleteOneFromFB(widget.id);
                                     },
                                   )
                           );
@@ -211,17 +221,17 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                             isSaved = false;
                           });
                           SavedDB().deleteOne(widget.title);
-                          SavedServices(provListen.user).deleteOneFromFB(postedID) // at (not-Saved-screen) ==> widget.id = null
+                          SavedServices(mainProvider.user).deleteOneFromFB(postedID) // at (not-Saved-screen) ==> widget.id = null
                               .then((value) => setState(()=> postedID=null ));
                         }
                       }
                       else{
-                        SavedServices(provListen.user+'.json').searchOnSaved(widget.title ,widget.all).then((alreadySaved){
+                        SavedServices(mainProvider.user+'.json').searchOnSaved(widget.title ,widget.all).then((alreadySaved){
                           if(alreadySaved==false){
                             setState(() {
                               isSaved = true;
                             });
-                            http.post(SavedServices(provListen.user+'.json').url() ,body: jsonEncode(
+                            http.post(SavedServices(mainProvider.user+'.json').url() ,body: jsonEncode(
                                   Article().toJson(
                                     fbAuthor: widget.author,
                                     fbTitle: widget.title,
@@ -240,7 +250,10 @@ class _ContainerOneNewsState extends State<ContainerOneNews> with AutomaticKeepA
                             });
                           }
                           else{
-                            Toast.show(Language().widgetsTit(provListen.isEnglish ,0), context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM ,backgroundColor: appColorPrimary.withOpacity(0.7));
+                            Toast.show(getTranslated(context, 'already saved'),
+                                context,
+                                duration: Toast.LENGTH_LONG,
+                                gravity:  Toast.BOTTOM);
                             // Provider.of<MyProviderReT>(context ,listen: false).setAlreadySavedAppear(true);
                             // Future.delayed(Duration(seconds: 2),(){
                             //   Provider.of<MyProviderReT>(context ,listen: false).setAlreadySavedAppear(false);

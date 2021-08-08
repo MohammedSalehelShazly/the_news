@@ -1,11 +1,18 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:the_news/global/appClrs.dart';
+import 'package:the_news/localization/demo_localization.dart';
+import 'package:the_news/localization/language_constants.dart';
 import 'package:the_news/screens/loginScreen.dart';
-import './staticVariables.dart';
+import 'package:the_news/services/newsServices.dart';
+import 'package:the_news/services/providers/settingsProv.dart';
+import 'package:the_news/services/providers/themeProv.dart';
+import 'package:the_news/services/weatherServices.dart';
+import 'global/staticVariables.dart';
 import 'StructPage.dart';
 import 'package:provider/provider.dart';
-import 'providerReT.dart';
+import 'services/providers/mainProvider.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'screens/splashScreen.dart';
@@ -18,49 +25,94 @@ void main(){
   WidgetsFlutterBinding.ensureInitialized();
   SystemChannels.textInput.invokeMethod('TextInput.hide');
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      systemNavigationBarColor: appColorPrimary, // navigation bar color
-      statusBarColor: appColorAccent,
+      systemNavigationBarColor: appClrs.mainColor, // navigation bar color
+      statusBarColor: appClrs.mainAlphaColor100,
       systemNavigationBarIconBrightness: Brightness.light,
-      systemNavigationBarDividerColor: appColorPrimary,
+      systemNavigationBarDividerColor: appClrs.mainColor,
       statusBarIconBrightness: Brightness.light
   ));
-  // SystemChrome.setPreferredOrientations([
-  //   DeviceOrientation.portraitUp,
-  // ]);
-  return runApp(MyApp());
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_)=>MainProvider()),
+      ChangeNotifierProvider(create: (_)=>NewsApi()),
+      ChangeNotifierProvider(create: (_)=>ThemeProv()),
+      ChangeNotifierProvider(create: (_)=>SettingsProv()),
+      ChangeNotifierProvider(create: (_)=>WeatherService()),
+    ],
+    child: MyApp(),
+  ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  static void setLocale(BuildContext context, Locale newLocale) {
+    _MyAppState state = context.findAncestorStateOfType<_MyAppState>();
+    state.setLocale(newLocale);
+  }
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  ThemeProv themeProv;
+
+  Locale _locale;
+
+  setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    getLocale().then((locale) {
+      setState(() {
+        this._locale = locale;
+      });
+    });
+    themeProv = Provider.of<ThemeProv>(context);
+
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_)=>MyProviderReT(),
-        ),
-      ],
+    return MaterialApp(
+        title: 'The News',
+        debugShowCheckedModeBanner: false,
+        //visualDensity: VisualDensity.adaptivePlatformDensity,
+        theme: appClrs.appThem(false),
+        darkTheme: appClrs.appThem(true),
+        themeMode: themeProv.isDark
+            ? ThemeMode.dark :ThemeMode.light,
 
-      child: MaterialApp(
-          title: 'The News',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          primaryColor: appColorPrimary,
-          accentColor: appColorAccent,
-          fontFamily: 'Cairo',
-          // to selected text
-          textSelectionColor: appColorPrimary.withOpacity(0.8),
-          cursorColor: appColorPrimary,
-          primarySwatch: appColorPrimaryMaterialClr,
+        // localization =>
+        locale: _locale,
+        supportedLocales: [
+          Locale("ar", ""),
+          Locale("en", ""),
+        ],
+        localizationsDelegates: [
+          DemoLocalization.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        localeResolutionCallback: (locale, supportedLocales) {
+          for (var supportedLocale in supportedLocales) {
+            if (supportedLocale.languageCode == locale.languageCode) {
+              return supportedLocale;
+            }
+          }
+          return supportedLocales.first;
+        },
 
-          appBarTheme: AppBarTheme(
-            color: appColorPrimary,
-          ),
-          scaffoldBackgroundColor: Colors.white
-      ),
-          
-          home: SplashScreen()
-      ),
+
+
+
+        home: SplashScreen()
     );
   }
 }

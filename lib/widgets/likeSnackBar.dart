@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 
-class LikeSnackBar extends StatelessWidget {
+class AppToast extends StatelessWidget {
 
   BuildContext sContext;
   Widget child ;
@@ -11,7 +11,7 @@ class LikeSnackBar extends StatelessWidget {
   Widget sContent;
   Color sColor ;
 
-  LikeSnackBar(this.sContext,this.appear,
+  AppToast(this.sContext,this.appear,
       {
         @required this.child,
         this.sContent ,

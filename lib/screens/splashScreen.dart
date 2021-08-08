@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/providers/settingsProv.dart';
+import '../services/providers/themeProv.dart';
 
 import '../StructPage.dart';
 import '../screens/loginScreen.dart';
-import '../staticVariables.dart';
 import '../widgets/theNewsLogo.dart';
-import '../providerReT.dart';
+import '../services/providers/mainProvider.dart';
 
 
 class SplashScreen extends StatefulWidget {
@@ -18,14 +19,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   
    SharedPreferences prefs ;
-  bool isEnglish = true;
-
-  language_get() async{
-    prefs = await SharedPreferences.getInstance();
-      if(prefs.getBool('isEnglish')==null){
-        isEnglish = true  ;
-      }else isEnglish = prefs.getBool('isEnglish') ;
-  }
 
   String user ='No';
   user_get() async{
@@ -35,7 +28,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    language_get();
     user_get();
 
     Future.delayed(Duration(seconds: 2),(){
@@ -53,19 +45,28 @@ class _SplashScreenState extends State<SplashScreen> {
 
     super.initState();
   }
-  
+
+
+  ThemeProv themeProv;
+
   bool appOpenedNow = true;
+  bool first = true;
   
   @override
   Widget build(BuildContext context) {
     if(appOpenedNow==true){
-      language_get().then((_)=>  Provider.of<MyProviderReT>(context ,listen: false).setIsEnglish(isEnglish)   );
-      user_get().then((_)=>  Provider.of<MyProviderReT>(context ,listen: false).setUser(user)  );
+      user_get().then((_)=>  Provider.of<MainProvider>(context ,listen: false).setUser(user)  );
       appOpenedNow = false ;
+    }
+    if(first){
+      themeProv = Provider.of<ThemeProv>(context);
+      Provider.of<ThemeProv>(context ,listen: false).getThemeMode();
+      Provider.of<SettingsProv>(context ,listen: false).getLang();
+      first = false;
     }
 
     return Scaffold(
-      backgroundColor: appColorPrimary.withOpacity(0.7),
+      backgroundColor: themeProv.mainClr100(),
       body: Center(
         child: TheNewsLogo(ctx: context ,keyVal: ValueKey(1) ,heroTag: 'logo',)
       ),

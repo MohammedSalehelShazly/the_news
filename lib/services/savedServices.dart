@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../staticVariables.dart';
+import '../global/staticVariables.dart';
 
 class SavedServices{
   String user;

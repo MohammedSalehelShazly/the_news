@@ -3,17 +3,18 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../localization/languageClass.dart';
+import '../localization/language_constants.dart';
+import '../services/providers/settingsProv.dart';
 
-import '../providerReT.dart';
+import '../services/providers/mainProvider.dart';
 import '../screens/splashScreen.dart';
 import '../widgets/dialog.dart';
 
-import '../languages.dart';
-
 class ChangeLanguage extends StatelessWidget {
-  bool atLoginScreen;
-  BuildContext mainCtx;
-  ChangeLanguage(this.atLoginScreen ,[this.mainCtx]);
+
+  Widget body;
+  ChangeLanguage(this.body);
 
   SharedPreferences prefs;
 
@@ -33,87 +34,37 @@ class ChangeLanguage extends StatelessWidget {
   };
   List countryLangFlag = countryLangFlagTitle.values.toList();
   static List countryLangTitle = countryLangFlagTitle.keys.toList();
+  
+  SettingsProv settingsProvWrite;
+  bool first = true;
 
 
   @override
   Widget build(BuildContext context) {
-    final provListen = Provider.of<MyProviderReT>(context);
-
+    if(first){
+      settingsProvWrite = Provider.of<SettingsProv>(context ,listen: false);
+    }
     return PopupMenuButton(
-        offset: Offset(0, provListen.isEnglish?0 :100),
-        itemBuilder: (context)=>[
-          
-                PopupMenuItem(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(countryLangFlag[0]),
-                      Text(countryLangTitle[0]),
-                    ],
-                  ),
-                  value: countryLangTitle[0],
+        offset: Offset(0, settingsProvWrite.appLang=='en'?0 :100),
+        itemBuilder: (context)=> Language.languageList().map((e)=>
+            PopupMenuItem(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(e.name),
+                    Text(e.flag),
+                  ],
                 ),
-                PopupMenuItem(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(countryLangFlag[1]),
-                      Text(countryLangTitle[1]),
-                    ],
-                  ),
-                  value: countryLangTitle[1],
-                ),
-                
-                if(!atLoginScreen) PopupMenuItem(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Icon(Icons.logout ,color: Colors.red,),
-                      Text(  Language().widgetsTit(provListen.isEnglish ,3)  ),
-                    ],
-                  ),
-                  value: 'logout',
-                ),
+                value:  e.languageCode //settingsProv.getLang(),
+            )).toList(),
 
-        ],
-
-
-        initialValue: Provider
-            .of<MyProviderReT>(context)
-            .isEnglish ? countryLangTitle[0] : countryLangTitle[1],
+        initialValue: settingsProvWrite.appLang,
         onSelected: (value) {
-          if (value == countryLangTitle[0]) {
-            Provider.of<MyProviderReT>(context, listen: false).setIsEnglish(true);
-            language_set(true);
-          }
-          else if(value == countryLangTitle[1]){
-            Provider.of<MyProviderReT>(context, listen: false).setIsEnglish(
-                false);
-            language_set(false);
-          }
-          else{ // 'logout'
-            
-            showDialog(
-              context: context ,
-              builder: (context)=> AppDialog(
-                ctx: context,
-                contentTxt: Language().loginFomrs(provListen.isEnglish ,7),
-                isEnglish: provListen.isEnglish,
-                secondActTxt: Language().loginFomrs(provListen.isEnglish ,8),
-                func: () {
-                  Provider.of<MyProviderReT>(context, listen: false).setUser('No');
-                  user_remove().then((_){
-                    Navigator.pushReplacement(this.mainCtx, CupertinoPageRoute(
-                      builder: (mainCtx)=>SplashScreen(),
-                    ));
-                  });
-                },
-              )
-            );
-          }
+          print(value);
+          settingsProvWrite.setLang(context, value);
         },
-        icon: Icon(Icons.language ,color: Colors.white.withOpacity(0.95) ,),
-        tooltip: Language().widgetsTit(Provider.of<MyProviderReT>(context,).isEnglish ,2),
+        icon: body,
+        tooltip: getTranslated(context, 'Language'),
         
       );
   }

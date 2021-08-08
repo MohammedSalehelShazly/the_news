@@ -6,16 +6,18 @@ class Article{
 
   final Source author;
   final String title;
+  final String description;
   final String url;
   final String urlToImage;
   final String publishedAt;
 
-  Article({this.author, this.title, this.url, this.urlToImage, this.publishedAt});
+  Article({this.author, this.title, this.description ,this.url, this.urlToImage, this.publishedAt});
 
   factory Article.fromJson(Map<String ,dynamic> jsonData){
     return Article(
       author : Source.fromJson(jsonData['source']),
       title : jsonData['title'] ,
+      description: jsonData['description'] ?? jsonData['title'],
       url : jsonData['url'],
       urlToImage : jsonData['urlToImage'],
       publishedAt : jsonData['publishedAt'],

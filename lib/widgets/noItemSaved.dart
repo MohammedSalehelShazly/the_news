@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../staticVariables.dart';
-import '../languages.dart';
-
+import 'package:the_news/global/responsive.dart';
+import '../localization/language_constants.dart';
+import '../global/staticVariables.dart';
 
 class NoItemSaved extends StatelessWidget{
 
@@ -29,8 +29,8 @@ class NoItemSaved extends StatelessWidget{
           ),
           Padding(
             padding: EdgeInsets.only(top: 20),
-            child: Text(Language().widgetsTit(isEng, 1),
-               style: myTextStyle(ctx ,ratioSize: 25 ,clr: Colors.black),),
+            child: Text(getTranslated(context, 'No News Saved'),
+               style: TextStyle(fontSize: responsive.textScale(context) *25),),
             ),
         ],
         ),

@@ -1,36 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../global/responsive.dart';
+import '../localization/language_constants.dart';
+import '../services/providers/themeProv.dart';
 
-import '../languages.dart';
-import '../providerReT.dart';
-import '../staticVariables.dart';
+import '../services/providers/mainProvider.dart';
+import '../global/staticVariables.dart';
 
 class SearchInitScreen extends StatelessWidget {
-  final double topPadding;
-  final double sWidth;
-  final BuildContext ctx ;
 
-  SearchInitScreen(this.ctx ,{@required this.topPadding ,@required this.sWidth});
+  ThemeProv themeProv;
+  MainProvider mainProvider;
+  bool first =true;
+
   @override
   Widget build(BuildContext context) {
-    final provListen = Provider.of<MyProviderReT>(context);
+    if(first){
+      themeProv = Provider.of<ThemeProv>(context);
+      mainProvider = Provider.of<MainProvider>(context);
+    }
     return Container(
-      width: sWidth,
+      width: responsive.sWidth(context),
+      height: responsive.sHeight(context),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(height: topPadding*1.2,),
+
+          SizedBox(height: responsive.responsiveHigh(context, 0.05),),
+
           Text(
-            Language().searchTit(provListen.isEnglish ,2),
-            style: myTextStyle(ctx ,clr: Colors.black ,ratioSize: 18).copyWith(fontWeight: FontWeight.w600),
+            getTranslated(context, 'Enter a few words to search in news'),
+            style: TextStyle(fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: topPadding*0.3,),
+
+          SizedBox(height: responsive.responsiveHigh(context, 0.01),),
+
           CircleAvatar(
-            backgroundColor: appColorPrimary,
-            radius: MediaQuery.textScaleFactorOf(ctx)*45,
-            child: Icon(Icons.search ,color: Colors.white,size: MediaQuery.textScaleFactorOf(ctx)*73),
+            backgroundColor: themeProv.mainClr(),
+            radius: responsive.textScale(context)*45,
+            child: Icon(Icons.search ,color: Colors.white,size: responsive.textScale(context)*73),
           ),
 
         ],

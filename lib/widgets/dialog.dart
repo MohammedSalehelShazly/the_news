@@ -1,20 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:the_news/staticVariables.dart';
-
-import '../languages.dart';
+import '../global/appClrs.dart';
+import '../global/responsive.dart';
+import '../localization/language_constants.dart';
 
 class AppDialog extends StatelessWidget {
   final BuildContext ctx ;
   final String contentTxt;
-  final bool isEnglish;
   final Function func;
   final String secondActTxt;
 
   const AppDialog({
     @required this.ctx,
     @required this.contentTxt,
-    @required this.isEnglish,
     @required this.func,
     @required this.secondActTxt,
 
@@ -25,21 +23,28 @@ class AppDialog extends StatelessWidget {
     return CupertinoAlertDialog(
       content: Padding(
         padding: EdgeInsets.all(10),
-        child: Text(contentTxt ,style: myTextStyle(ctx ,clr:Colors.black87 ,ratioSize: 15),softWrap: true,),
+        child: Text(contentTxt ,
+          softWrap: true,
+          style: TextStyle(
+              fontFamily: appClrs.mainFontFamily ,
+              fontWeight: FontWeight.w500,
+              fontSize: responsive.textScale(context)*18),
         ),
-      insetAnimationDuration: Duration(seconds: 1),
+        ),
+      //insetAnimationDuration: Duration(seconds: 1),
       actions: [
         CupertinoButton(
-          child: Text(Language().dialogTit(isEnglish ,0) ,
-              style: myTextStyle(ctx ,clr: Colors.black87 ,ratioSize: 16),
-            ),
+          child: Text(
+            getTranslated(context, 'Cancel'),
+            style: TextStyle(fontFamily: appClrs.mainFontFamily),),
           onPressed: (){
             Navigator.pop(ctx);
           },
         ),
         CupertinoButton(
-          child: Text(secondActTxt
-              ,style: myTextStyle(ctx ,clr: Colors.red ,ratioSize: 16),),
+          child: Text(
+            secondActTxt,
+            style: TextStyle(color: Colors.red ,fontFamily: appClrs.mainFontFamily),),
           onPressed: () {
             func();
             Navigator.pop(ctx);
