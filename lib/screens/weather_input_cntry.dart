@@ -43,16 +43,7 @@ class _Weather_input_cntryState extends State<Weather_input_cntry> {
         body: Column(
           children: <Widget>[
 
-            if(weatherService.searchResult.isEmpty)
-              Opacity(
-                opacity: 0.7,
-                child: Center(
-                  child: SvgPicture.asset(
-                      'assets/images/searchImg.svg',
-                      semanticsLabel: 'search'
-                  ),
-                ),
-              ),
+
 
 
             Padding(
@@ -84,6 +75,19 @@ class _Weather_input_cntryState extends State<Weather_input_cntry> {
                 ),
               ),
             ),
+
+
+            if(weatherService.searchResult.isEmpty)
+              Opacity(
+                opacity: 0.7,
+                child: Center(
+                  child: SvgPicture.asset(
+                      'assets/images/searchImg.svg',
+                      semanticsLabel: 'search',
+                    height: responsive.responsiveHigh(context, .5),
+                  ),
+                ),
+              ),
 
             Expanded(
               child: ListView.builder(
