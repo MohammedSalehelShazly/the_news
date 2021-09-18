@@ -1,16 +1,9 @@
-# the_news
+# the news app
 
-A new Flutter project.
+➊ cleane code.
+➋ awesome UI.
+➌ responsive screens for mobile, tablet, web, desktop
+➍ Browse news by categories.
+➎ National and Local Weather Radar.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![newsAppScreens](https://user-images.githubusercontent.com/71941881/133888830-895d7f2c-2ddb-44c0-8508-7a96a12cdee0.png)
