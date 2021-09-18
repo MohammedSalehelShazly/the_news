@@ -39,7 +39,6 @@ class NewsApi with ChangeNotifier{
     newsCat.Art : null,
     newsCat.Business : null,
     newsCat.Technology : null,
-    newsCat.Saved : null,
   };
 
   setArticleNews(List<Article> _articleNews ,newsCat cat){
@@ -81,7 +80,6 @@ class NewsApi with ChangeNotifier{
     List<newsCat> allNewsCat = newsCat.values.toList();
 
     for(int i=0 ; i<newsCat.values.length ;i++){
-      if( allNewsCat[i] != newsCat.Saved){
 
         if(fetchesArticles[ allNewsCat[i] ] == null){
           await fetchArticles(allNewsCat[i] ,appLang);
@@ -93,7 +91,6 @@ class NewsApi with ChangeNotifier{
           print('fetchArticles refresh ${allNewsCat[i]}');
         }
 
-      }
     }
     print('feachAllArticle');
   }
@@ -113,7 +110,6 @@ class NewsApi with ChangeNotifier{
     await feachAllArticle(appLang ,refresh).then((value){
 
         fetchesArticles.forEach((key, value) {
-          if(key != newsCat.Saved){
             for(int i=0 ;i<value.length ;i++){
               if(_removeExtinctionsAtWord.normalise(value[i].title.toLowerCase())
                   .contains(_removeExtinctionsAtWord.normalise(searcgedWord.toLowerCase()))
@@ -131,7 +127,6 @@ class NewsApi with ChangeNotifier{
               searchResultList = listToSet(searchResultList);
               notifyListeners();
             }
-          }
 
           //if(fetchesArticles.values.toList().indexOf(value) == fetchesArticles.values.toList().length-1)
           //  return 1;

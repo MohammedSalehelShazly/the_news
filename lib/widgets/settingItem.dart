@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import '../localization/language_constants.dart';
-import '../global/responsive.dart';
 
 class SettingItem extends StatelessWidget {
 
@@ -21,8 +20,6 @@ class SettingItem extends StatelessWidget {
     return ListTile(
       title: Text(
         getTranslated(context, txtKey),
-        //maxFontSize: responsive.textScale(context)*30,
-        //minFontSize: responsive.textScale(context)*18,
       ),
       trailing: trailing,
       onTap: onTap,

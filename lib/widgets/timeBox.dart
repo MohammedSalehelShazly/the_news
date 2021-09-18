@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import '../services/providers/themeProv.dart';
+
+import 'package:provider/provider.dart';
 
 class TimeBox extends StatelessWidget {
   Widget child;
   TimeBox(this.child);
 
-  ThemeProv themeProv;
-  bool first = true;
-
   @override
   Widget build(BuildContext context) {
-    if(first){
-      themeProv = Provider.of<ThemeProv>(context);
-      first = false;
-    }
     return Container(
       padding: EdgeInsets.only(right: 0),
       decoration: BoxDecoration(

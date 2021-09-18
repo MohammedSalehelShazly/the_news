@@ -2,51 +2,32 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart';
+
+import 'global/responsive.dart';
+import 'services/providers/settingsProv.dart';
 import 'localization/language_constants.dart';
 import 'screens/searchNewsScreen.dart';
-import 'screens/settingsScreen.dart';
-import 'services/providers/themeProv.dart';
+import 'widgets/appDrawer.dart';
 import 'global/enums.dart';
-import 'screens/allSavedNews.dart';
-import 'services/newsServices.dart';
-
 import 'services/providers/mainProvider.dart';
 import './screens/weather_input_cntry.dart';
 import 'global/staticVariables.dart';
 import 'screens/allNews.dart';
 import 'widgets/dialog.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+
 class StructPage extends StatelessWidget {
   SharedPreferences prefs ;
   bool isEnglish = true;
 
-  /*static */ List<Widget> pages = [ AllNews(newsCat.all)  ,AllNews(newsCat.Health), AllNews(newsCat.Technology) ,AllNews(newsCat.Business) ,AllNews(newsCat.Sports) ,AllNews(newsCat.Art) ,AllNews(newsCat.Science_space) ,AllSavedNews() ,Weather_input_cntry() ];
+  List<Widget> pages = [ AllNews(newsCat.all)  ,AllNews(newsCat.Health), AllNews(newsCat.Technology) ,AllNews(newsCat.Business) ,AllNews(newsCat.Sports) ,AllNews(newsCat.Art) ,AllNews(newsCat.Science_space) ,Weather_input_cntry() ];
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
-
-  NewsApi newsApiWrite;
-  MainProvider mainProvider;
-  MainProvider mainProviderWrite;
-  ThemeProv themeProv;
-
-  TextEditingController inputController = TextEditingController();
-
-  bool first = true;
-
   @override
   Widget build(BuildContext context){
-    if(first){
-      newsApiWrite = Provider.of<NewsApi>(context, listen: false);
-      mainProvider = Provider.of<MainProvider>(context);
-      mainProviderWrite = Provider.of<MainProvider>(context, listen: false);
-      themeProv = Provider.of<ThemeProv>(context);
-
-      first = false;
-    }
-
     return SafeArea(
       child: DefaultTabController(
         length: pages.length,
@@ -68,52 +49,52 @@ class StructPage extends StatelessWidget {
           },
           child: Scaffold(
           key: scaffoldKey,
-          appBar: AppBar(
-            title: Text( getTranslated(context,
-                mainProvider.currentPageIndex == 8 ? 'Weather'
-                    : newsCatToString(
-                    newsCat.values.elementAt(mainProvider.currentPageIndex) ,true)),),
-            centerTitle: true,
+          drawer: Selector<SettingsProv ,String>(
+            selector: (_,prov)=> prov.appLang,
+            builder: (_,appLang, __)=> AppDrawer(endDrawer: appLang == 'ar',),
+          ),
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(responsive.responsiveHigh(context, .17)),
+            child: Selector<MainProvider ,int>(
+              selector: (_,prov)=> prov.currentPageIndex,
+              builder: (_,appLang, __)=> AppBar(
+                title: Text( getTranslated(context,
+                    appLang == 7 ? 'Weather'
+                        : newsCatToString(
+                        newsCat.values.elementAt(appLang) ,true)),),
+                centerTitle: true,
 
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.search ,color: Colors.white.withOpacity(0.95),),
-                onPressed: (){
-                  Navigator.of(context).push(CupertinoPageRoute(builder: (context)=> SearchNewsScreen()));
-                },
-              )
-            ],
-            leading:  IconButton(
-              icon: Icon(Icons.settings),
-              tooltip: getTranslated(context, 'settings'),
-              onPressed: (){
-                Navigator.push(context, CupertinoPageRoute(
-                  builder: (_)=> SettingsScreen()
-                ));
-              },
-            ),
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.search ,color: Colors.white.withOpacity(0.95),),
+                    onPressed: (){
+                      Navigator.of(context).push(CupertinoPageRoute(builder: (context)=> SearchNewsScreen()));
+                    },
+                  )
+                ],
 
-            bottom: TabBar(
-              isScrollable: true,
-              onTap: (index){
-                  mainProviderWrite.changeCurrentPage(index);
-              },
-              // unselectedLabelColor: Colors.white54,
-              // labelColor: Colors.white,
-              indicator: BoxDecoration(),
-              // tabs: newsCat.values.map((e)
-              //     => Tab(text: newsCatToString(e ,true)),
-              // ).toList(),
-              tabs: [
-                ...newsCat.values.map(
-                      (e)=> Tab(text: getTranslated(context, newsCatToString(e ,true)) )),
-                Tab(text: getTranslated(context, 'Weather'))
-
-              ]
-
-
+                bottom: PreferredSize(
+                  preferredSize: Size.fromHeight(responsive.responsiveHigh(context, .65)),
+                  child: Consumer<MainProvider>(
+                    builder:(_,prov,__)=> TabBar(
+                        isScrollable: true,
+                        onTap: (index){
+                          prov.changeCurrentPage(index);
+                        },
+                        indicator: BoxDecoration(),
+                        tabs: [
+                          ...newsCat.values.map(
+                                  (e)=> Tab(text: getTranslated(context, newsCatToString(e ,true)) )),
+                          Tab(text: getTranslated(context, 'Weather'))
+                        ]
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
+
+
           body: TabBarView(
             physics: NeverScrollableScrollPhysics(),
             children: pages.map((e) => e).toList(),

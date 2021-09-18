@@ -40,7 +40,7 @@ class _Weather_input_cntryState extends State<Weather_input_cntry> {
     }
     return SafeArea(
       child: Scaffold(
-        body: Stack(
+        body: Column(
           children: <Widget>[
 
             if(weatherService.searchResult.isEmpty)
@@ -85,15 +85,13 @@ class _Weather_input_cntryState extends State<Weather_input_cntry> {
               ),
             ),
 
-            Transform.translate(
-              offset: Offset(0 ,responsive.sHeight(context)*0.08),
+            Expanded(
               child: ListView.builder(
                 physics: BouncingScrollPhysics(),
                 itemCount: weatherService.searchResult.length,
                 itemExtent: responsive.countryListTileHigh(context),
-
-                itemBuilder: (context ,index)
-                    => Card(
+                itemBuilder: (context ,index) =>
+                    Card(
                       child: ListTile(
                         leading: Icon(Icons.search ,),
                         title: Text(
@@ -102,11 +100,10 @@ class _Weather_input_cntryState extends State<Weather_input_cntry> {
                           weatherServiceWrite.fetchDataWeather(country);
                           Navigator.push(context, CupertinoPageRoute(
                             builder: (context)=>WeatherScreen(
-                              //governorates_countries.elementAt(index),
                               weatherService.searchResult[index],
                             ),
                           ));
-                        },
+                          },
                       ),
                     ),
               ),
@@ -115,6 +112,5 @@ class _Weather_input_cntryState extends State<Weather_input_cntry> {
         ),
       ),
     );
-
   }
 }

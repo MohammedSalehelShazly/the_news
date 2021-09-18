@@ -4,21 +4,9 @@ import '../global/responsive.dart';
 import '../localization/language_constants.dart';
 import '../services/providers/themeProv.dart';
 
-import '../services/providers/mainProvider.dart';
-import '../global/staticVariables.dart';
-
 class SearchInitScreen extends StatelessWidget {
-
-  ThemeProv themeProv;
-  MainProvider mainProvider;
-  bool first =true;
-
   @override
   Widget build(BuildContext context) {
-    if(first){
-      themeProv = Provider.of<ThemeProv>(context);
-      mainProvider = Provider.of<MainProvider>(context);
-    }
     return Container(
       width: responsive.sWidth(context),
       height: responsive.sHeight(context),
@@ -37,10 +25,12 @@ class SearchInitScreen extends StatelessWidget {
 
           SizedBox(height: responsive.responsiveHigh(context, 0.01),),
 
-          CircleAvatar(
-            backgroundColor: themeProv.mainClr(),
-            radius: responsive.textScale(context)*45,
-            child: Icon(Icons.search ,color: Colors.white,size: responsive.textScale(context)*73),
+          Consumer<ThemeProv>(
+            builder:(_,prov, __)=> CircleAvatar(
+              backgroundColor: prov.mainClr(),
+              radius: responsive.textScale(context)*45,
+              child: Icon(Icons.search ,color: Colors.white,size: responsive.textScale(context)*73),
+            ),
           ),
 
         ],

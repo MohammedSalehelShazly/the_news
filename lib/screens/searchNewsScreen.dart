@@ -6,7 +6,7 @@ import '../global/responsive.dart';
 import '../localization/language_constants.dart';
 import '../services/providers/settingsProv.dart';
 import '../services/providers/themeProv.dart';
-import '../widgets/container_oneNews.dart';
+import '../widgets/oneNewsItem.dart';
 import '../widgets/noSearchItems.dart';
 import '../widgets/searchInitScreen.dart';
 import '../global/enums.dart';
@@ -89,9 +89,8 @@ class SearchNewsScreen extends StatelessWidget {
 
                   //  this case is===>  searchIsDone && searchResultList.isNotEmpty
                   SliverList(delegate: SliverChildListDelegate(
-                      newsApi.searchResultList.map((e) => ContainerOneNews(
+                      newsApi.searchResultList.map((e) => OneNewsItem(
                         themeProv.mainClr(),
-                        all: null,
                         sWidth: responsive.sWidth(context),
                         sHeight: responsive.sWidth(context) *0.55,
                         title: e.title,
@@ -104,7 +103,6 @@ class SearchNewsScreen extends StatelessWidget {
                 ],
               ),
             ),
-
           ),
         ));
   }

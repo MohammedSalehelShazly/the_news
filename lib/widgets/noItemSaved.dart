@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_news/global/responsive.dart';
+import '../global/responsive.dart';
 import '../localization/language_constants.dart';
 import '../global/staticVariables.dart';
 

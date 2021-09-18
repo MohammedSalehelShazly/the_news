@@ -43,17 +43,17 @@ dependencies:
   toast: ^0.1.5
   connectivity: ^2.0.2
   flutter_svg: ^0.22.0
+  flutter_phoenix: ^1.0.0
 
 
 
-  firebase_core: 0.7.0
-  google_sign_in: ^4.5.1
-  firebase_storage: ^7.0.0
-  firebase_database: ^6.0.0
-  firebase_messaging: ^8.0.0-dev.15
-  cloud_firestore: ^0.16.0+1
-  firebase_auth:
-  firebase_analytics:
+#  firebase_core: 0.7.0
+#  google_sign_in: ^4.5.1
+#  firebase_storage: ^7.0.0
+#  firebase_database: ^6.0.0
+#  cloud_firestore: ^0.16.0+1
+#  firebase_auth:
+#  firebase_analytics:
 
 
 

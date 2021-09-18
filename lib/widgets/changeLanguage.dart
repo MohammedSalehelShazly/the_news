@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -59,9 +60,10 @@ class ChangeLanguage extends StatelessWidget {
             )).toList(),
 
         initialValue: settingsProvWrite.appLang,
-        onSelected: (value) {
+        onSelected: (value) async{
           print(value);
-          settingsProvWrite.setLang(context, value);
+          await settingsProvWrite.setLang(context, value);
+          Phoenix.rebirth(context);
         },
         icon: body,
         tooltip: getTranslated(context, 'Language'),

@@ -36,9 +36,12 @@ class Responsive{
             => appBar.preferredSize.height + mediaQuery(context).padding.top;
 
     double countryListTileHigh(BuildContext context){
-        return isPortrait(context) ? sHeight(context) /13
+        return isPortrait(context) ? sHeight(context) /11
             : sWidth(context) /13;
     }
+
+    double topPadding(BuildContext context)=>
+        mediaQuery(context).padding.top;
 
 
 }

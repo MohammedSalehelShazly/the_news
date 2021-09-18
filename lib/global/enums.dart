@@ -7,7 +7,6 @@ enum newsCat {
   Sports,
   Art,
   Science_space,
-  Saved,
 }
 
 enum searchCase{

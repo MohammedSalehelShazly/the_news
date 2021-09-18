@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:the_news/global/appClrs.dart';
-import 'package:the_news/localization/demo_localization.dart';
-import 'package:the_news/localization/language_constants.dart';
-import 'package:the_news/screens/loginScreen.dart';
-import 'package:the_news/services/newsServices.dart';
-import 'package:the_news/services/providers/settingsProv.dart';
-import 'package:the_news/services/providers/themeProv.dart';
-import 'package:the_news/services/weatherServices.dart';
-import 'global/staticVariables.dart';
-import 'StructPage.dart';
-import 'package:provider/provider.dart';
-import 'services/providers/mainProvider.dart';
-import 'package:firebase_core/firebase_core.dart';
 
+import 'global/appClrs.dart';
+import 'localization/demo_localization.dart';
+import 'localization/language_constants.dart';
+import 'services/newsServices.dart';
+import 'services/providers/settingsProv.dart';
+import 'services/providers/themeProv.dart';
+import 'services/weatherServices.dart';
+import 'services/providers/mainProvider.dart';
 import 'screens/splashScreen.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'package:provider/provider.dart';
 
 // import 'package:intl/intl.dart';  ======> its not allow to use Directionality
 // add time of read weather to known user weather is very dakek
@@ -31,16 +29,21 @@ void main(){
       systemNavigationBarDividerColor: appClrs.mainColor,
       statusBarIconBrightness: Brightness.light
   ));
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_)=>MainProvider()),
-      ChangeNotifierProvider(create: (_)=>NewsApi()),
-      ChangeNotifierProvider(create: (_)=>ThemeProv()),
-      ChangeNotifierProvider(create: (_)=>SettingsProv()),
-      ChangeNotifierProvider(create: (_)=>WeatherService()),
-    ],
-    child: MyApp(),
-  ));
+
+  runApp(
+    Phoenix(
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_)=>MainProvider()),
+          ChangeNotifierProvider(create: (_)=>NewsApi()),
+          ChangeNotifierProvider(create: (_)=>ThemeProv()),
+          ChangeNotifierProvider(create: (_)=>SettingsProv()),
+          ChangeNotifierProvider(create: (_)=>WeatherService()),
+        ],
+        child: MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

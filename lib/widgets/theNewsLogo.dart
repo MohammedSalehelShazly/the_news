@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../global/responsive.dart';
 
 class TheNewsLogo extends StatelessWidget {
@@ -17,6 +18,7 @@ class TheNewsLogo extends StatelessWidget {
     return Hero(
       tag: heroTag, // not work because it  (Navigator.pushReplacement) ...not push
       child: Container(
+        width: responsive.sHeight(context)*.4,
         key: keyVal,
         alignment: Alignment.center,
         decoration: BoxDecoration(
